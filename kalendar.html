@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Місячний листок</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F8F4EC;
+    --card: #FFFFFF;
+    --card-2: #FBF7EF;
+    --ink: #3D3929;
+    --ink-soft: #8A8473;
+    --line: rgba(61,57,41,0.10);
+
+    --clay: #C2603D;
+    --clay-soft: #F3E1D6;
+    --water: #4C7A8C;
+    --water-soft: #E1ECEE;
+    --earth: #92703E;
+    --earth-soft: #F0E6D2;
+    --fire: #C2603D;
+    --fire-soft: #F3E0D3;
+    --air: #6D7E8C;
+    --air-soft: #E7EBEC;
+
+    --shadow: 0 1px 2px rgba(61,57,41,0.05), 0 10px 30px rgba(61,57,41,0.07);
+  }
+
+  *{ box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body{
+    margin:0; padding:0; height:100%;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Manrope', sans-serif;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #app{
+    position: fixed; inset: 0;
+    display:flex; flex-direction:column;
+    max-width: 520px; margin: 0 auto;
+    background: var(--paper);
+  }
+
+  /* ===== TOPBAR ===== */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: max(14px, env(safe-area-inset-top)) 18px 8px;
+    flex-shrink:0;
+  }
+  .nav-btn{
+    width:44px; height:44px; border-radius:50%;
+    border:none; background: var(--card);
+    box-shadow: var(--shadow);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--ink);
+    transition: transform .15s ease;
+  }
+  .nav-btn:active{ transform: scale(0.9); }
+  .nav-btn svg{ width:19px; height:19px; }
+
+  .today-pill{
+    font-family:'Manrope'; font-weight:700; font-size:13.5px;
+    color: var(--ink);
+    background: var(--card);
+    box-shadow: var(--shadow);
+    border-radius: 100px;
+    padding: 10px 18px;
+    border:none;
+  }
+  .today-pill:active{ transform: scale(0.96); }
+
+  .help-btn{
+    width:44px; height:44px; border-radius:50%;
+    border: none;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    color: var(--clay);
+    font-family:'Fraunces'; font-weight:700; font-size:18px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .help-btn:active{ transform: scale(0.9); }
+
+  /* ===== SCROLL ===== */
+  .scroll-area{
+    flex:1; overflow-y:auto; overflow-x:hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 24px;
+  }
+  .scroll-area::-webkit-scrollbar{ display:none; }
+
+  /* ===== HERO ===== */
+  .hero{
+    margin: 6px 18px 16px;
+    padding: 30px 22px 26px;
+    background: var(--card);
+    border-radius: 30px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    position: relative;
+  }
+
+  .weekday{
+    font-size:13px; font-weight:700; letter-spacing:0.12em;
+    text-transform:uppercase; color: var(--clay);
+    margin-bottom: 4px;
+  }
+  .big-day{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 104px;
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    font-variation-settings: 'opsz' 144;
+  }
+  .month-label{
+    font-size: 15px; font-weight:700; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--ink-soft);
+    margin-top: 8px;
+  }
+
+  .moon-row{
+    display:flex; align-items:center; justify-content:center;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .moon-svg-holder{ width: 52px; height: 52px; flex-shrink:0; }
+  .moon-phase-name{
+    font-size: 14.5px; font-weight:700; color: var(--ink);
+    text-align:left;
+  }
+  .moon-phase-sub{
+    font-size: 12px; color: var(--ink-soft); font-weight:600;
+    text-align:left;
+  }
+
+  .hero-divider{
+    height:1px; background: var(--line); margin: 22px 0 18px;
+  }
+
+  .zodiac-row{
+    display:flex; align-items:center; justify-content:center; gap:14px;
+  }
+  .zodiac-symbol{
+    width: 52px; height:52px; border-radius:16px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .zodiac-symbol svg{ width:26px; height:26px; }
+  .zodiac-text{ text-align:left; }
+  .zodiac-sign{
+    font-family:'Fraunces', serif; font-weight:600; font-size:20px;
+    color: var(--ink);
+  }
+  .zodiac-element{
+    font-size: 13.5px; color: var(--ink-soft); font-weight:600;
+    margin-top:1px;
+    display:flex; align-items:center; gap:5px;
+  }
+  .zodiac-element svg{ width:13px; height:13px; }
+
+  /* ===== SECTIONS ===== */
+  .section-label{
+    font-size:12.5px; font-weight:800; letter-spacing:0.1em;
+    text-transform:uppercase; color: var(--ink-soft);
+    margin: 20px 22px 10px;
+    display:flex; align-items:center; gap:6px;
+  }
+
+  .reco-card{
+    margin: 0 18px 14px;
+    border-radius: 24px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    overflow:hidden;
+  }
+  .reco-head{
+    padding: 15px 18px 13px;
+    display:flex; align-items:center; gap:10px;
+    font-weight:800; font-size:14.5px;
+  }
+  .reco-head svg{ width:17px; height:17px; flex-shrink:0; }
+  .reco-list{
+    padding: 2px 18px 16px;
+  }
+  .reco-item{
+    display:flex; gap:11px; align-items:flex-start;
+    padding: 10px 0;
+    font-size: 15px; line-height:1.42;
+    border-top: 1px solid var(--line);
+  }
+  .reco-item:first-child{ border-top:none; }
+  .reco-item .mark{
+    flex-shrink:0; width:20px; height:20px; margin-top:1px;
+  }
+  .reco-item .mark svg{ width:100%; height:100%; }
+
+  .do-card .reco-head{ background: var(--clay-soft); color: var(--clay); }
+  .dont-card .reco-head{ background: rgba(61,57,41,0.045); color: var(--ink); }
+
+  .mood-card{
+    margin: 0 18px 14px;
+    padding: 18px 20px;
+    background: var(--card-2);
+    border: 1.5px dashed var(--line);
+    border-radius: 24px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  .mood-card b{ color: var(--clay); }
+
+  .special-note{
+    margin: 0 18px 16px;
+    padding: 15px 17px;
+    background: var(--clay-soft);
+    border-radius: 20px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: #8A3F23;
+    font-weight: 700;
+    display:flex; gap:11px; align-items:flex-start;
+  }
+  .special-note svg{ width:19px; height:19px; flex-shrink:0; margin-top:1px; }
+
+  .footer-space{ height: 6px; }
+
+  /* ===== HELP OVERLAY ===== */
+  .overlay{
+    position: fixed; inset:0; z-index: 50;
+    background: rgba(61,57,41,0.45);
+    display:flex; align-items:flex-end;
+    opacity:0; pointer-events:none;
+    transition: opacity .25s ease;
+  }
+  .overlay.open{ opacity:1; pointer-events:auto; }
+  .sheet{
+    background: var(--paper);
+    width:100%; max-width:520px; margin:0 auto;
+    border-radius: 30px 30px 0 0;
+    max-height: 88vh;
+    display:flex; flex-direction:column;
+    transform: translateY(100%);
+    transition: transform .32s cubic-bezier(.22,.9,.3,1);
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.18);
+  }
+  .overlay.open .sheet{ transform: translateY(0); }
+  .sheet-handle{
+    width:42px; height:5px; border-radius:4px;
+    background: var(--line); margin: 12px auto 2px;
+    flex-shrink:0;
+  }
+  .sheet-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 10px 20px 14px;
+    flex-shrink:0;
+  }
+  .sheet-title{
+    font-family:'Fraunces', serif; font-weight:600; font-size:23px;
+  }
+  .sheet-close{
+    width:36px; height:36px; border-radius:50%;
+    border:none; background: var(--card);
+    box-shadow: var(--shadow);
+    font-size:15px; color:var(--ink);
+  }
+  .sheet-body{
+    overflow-y:auto; padding: 4px 20px 34px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .sheet-body::-webkit-scrollbar{ display:none; }
+
+  .help-intro{
+    font-size: 15px; line-height:1.6; color: var(--ink);
+    margin-bottom: 20px;
+    background: var(--card);
+    border-radius: 20px; padding: 16px 18px;
+    box-shadow: var(--shadow);
+  }
+  .help-intro b{ color: var(--clay); }
+
+  .help-element{
+    border-radius: 22px;
+    padding: 17px 17px 15px;
+    margin-bottom: 14px;
+  }
+  .help-element-head{
+    display:flex; align-items:center; gap:10px;
+    font-family:'Fraunces', serif; font-weight:700; font-size:18px;
+    margin-bottom: 8px;
+  }
+  .help-element-head svg{ width:20px; height:20px; }
+  .help-element-sub{
+    font-size:13.5px; line-height:1.5; margin-bottom:10px; font-weight:700;
+  }
+  .help-element ul{
+    margin:0; padding-left: 0; font-size:13.8px; line-height:1.6;
+    list-style:none;
+  }
+  .help-element li{
+    margin-bottom: 5px; padding-left:16px; position:relative;
+  }
+  .help-element li::before{
+    content:'–'; position:absolute; left:0;
+  }
+
+  .help-water{ background: var(--water-soft); }
+  .help-earth{ background: var(--earth-soft); }
+  .help-fire{ background: var(--fire-soft); }
+  .help-air{ background: var(--air-soft); }
+
+  .help-water .help-element-head{ color: var(--water); }
+  .help-earth .help-element-head{ color: var(--earth); }
+  .help-fire .help-element-head{ color: var(--fire); }
+  .help-air .help-element-head{ color: #4F5F6B; }
+
+  .phase-row{
+    display:flex; align-items:center; gap:13px;
+    padding: 11px 4px;
+    border-top: 1px solid var(--line);
+  }
+  .phase-row:first-child{ border-top:none; }
+  .phase-row .ph-icon{ width: 34px; height:34px; flex-shrink:0;}
+  .phase-row .ph-icon svg{ width:100%; height:100%; }
+  .phase-row .ph-text b{ display:block; font-size:14.5px; }
+  .phase-row .ph-text span{ font-size:12.8px; color:var(--ink-soft); }
+
+  .help-footer-note{
+    margin-top:18px; padding: 14px 16px; border-radius:16px;
+    background: var(--card); box-shadow: var(--shadow);
+    font-size:13px; line-height:1.55;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <div class="topbar">
+    <button class="nav-btn" id="prevBtn" aria-label="Попередній день">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="today-pill" id="todayBtn">Сьогодні</button>
+    <button class="nav-btn" id="nextBtn" aria-label="Наступний день">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <div class="scroll-area" id="scrollArea">
+
+    <div class="hero" id="heroCard">
+      <div class="weekday" id="weekdayLabel">Середа</div>
+      <div class="big-day" id="dayNumber">24</div>
+      <div class="month-label" id="monthLabel">ЧЕРВНЯ</div>
+
+      <div class="moon-row">
+        <div class="moon-svg-holder" id="moonSvgHolder"></div>
+        <div>
+          <div class="moon-phase-name" id="moonPhaseName">Місяць спадає</div>
+          <div class="moon-phase-sub" id="moonPhaseSub">Фаза Місяця</div>
+        </div>
+      </div>
+
+      <div class="hero-divider"></div>
+
+      <div class="zodiac-row">
+        <div class="zodiac-symbol" id="zodiacSymbolBox"></div>
+        <div class="zodiac-text">
+          <div class="zodiac-sign" id="zodiacSignName">Терези</div>
+          <div class="zodiac-element" id="zodiacElementName"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="specialNoteHolder"></div>
+
+    <div class="section-label">
+      <span id="doIcon"></span> Що варто зробити
+    </div>
+    <div class="reco-card do-card">
+      <div class="reco-head"><span id="doHeadIcon"></span><span id="doHeadText">Сьогодні гарний день для</span></div>
+      <div class="reco-list" id="doList"></div>
+    </div>
+
+    <div class="section-label">Чого уникати</div>
+    <div class="reco-card dont-card">
+      <div class="reco-head"><span id="dontHeadIcon"></span><span>Краще відкласти</span></div>
+      <div class="reco-list" id="dontList"></div>
+    </div>
+
+    <div class="mood-card" id="moodCard"></div>
+
+    <div class="footer-space"></div>
+  </div>
+
+  <button class="help-btn" id="helpBtn" aria-label="Довідка" style="position:absolute; right:18px; bottom:max(18px, env(safe-area-inset-bottom)); z-index:5;">?</button>
+
+</div>
+
+<!-- HELP OVERLAY -->
+<div class="overlay" id="helpOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div class="sheet-title">Як це працює</div>
+      <button class="sheet-close" id="closeHelp">✕</button>
+    </div>
+    <div class="sheet-body">
+
+      <div class="help-intro">
+        Місяць — наче прожектор. Він світить щодня, але проходить через різні
+        <b>знаки Зодіаку</b>, і кожен знак "фарбує" день у свою стихію — Воду, Землю,
+        Вогонь або Повітря. Стихія дня підказує, що варто робити, а що краще
+        відкласти.
+      </div>
+
+      <div class="help-element help-water">
+        <div class="help-element-head" id="hWaterHead">Вода</div>
+        <div class="help-element-sub">Рак, Скорпіон, Риби — дні поливу й прання</div>
+        <ul>
+          <li>Вода стає «активною», рослини п'ють її з жадібністю</li>
+          <li>Можна садити листову зелень — салат, капусту</li>
+          <li>Найкращий час для прання — бруд відходить легко</li>
+          <li>Не збираємо врожай на зберігання і не консервуємо — зігниє</li>
+        </ul>
+      </div>
+
+      <div class="help-element help-earth">
+        <div class="help-element-head" id="hEarthHead">Земля</div>
+        <div class="help-element-sub">Телець, Діва, Козеріг — дні коренів і краси</div>
+        <ul>
+          <li>Сила йде в корінь — найкращий час садити й пересаджувати</li>
+          <li>Добре вносити добрива</li>
+          <li>Генеральне прибирання — пил довго не сідає</li>
+          <li>Стрижка — волосся буде густим і міцним</li>
+          <li>Закрутки й квашення простоять довго</li>
+        </ul>
+      </div>
+
+      <div class="help-element help-fire">
+        <div class="help-element-head" id="hFireHead">Вогонь</div>
+        <div class="help-element-sub">Овен, Лев, Стрілець — дні сухості й тепла</div>
+        <ul>
+          <li>Земля швидко сохне — садити нічого не варто</li>
+          <li>Добре боротися зі шкідниками й обрізати сухі гілки</li>
+          <li>Білизна висихає миттєво</li>
+          <li>Обережно з гострими предметами та праскою — день підвищеного травматизму</li>
+        </ul>
+      </div>
+
+      <div class="help-element help-air">
+        <div class="help-element-head" id="hAirHead">Повітря</div>
+        <div class="help-element-sub">Близнюки, Терези, Водолій — дні світла й квітів</div>
+        <ul>
+          <li>Можна садити тільки квіти й рослини, що в'ються</li>
+          <li>Картоплю садити не можна — врожаю не буде</li>
+          <li>Найкращі дні для миття вікон і кришталю — без розводів</li>
+          <li>Квіти не поливаємо — коріння "дихає", а не п'є</li>
+        </ul>
+      </div>
+
+      <div class="section-label" style="margin:20px 4px 8px;">Фази Місяця</div>
+      <div id="phasesListHolder"></div>
+
+      <div class="help-footer-note">
+        Цей календар має рекомендаційний характер — це приємна традиція й гарний ритуал,
+        а не точна наука. Слухай також своє самопочуття та здоровий глузд.
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script id="days-data" type="application/json">
+[{"date":"2026-06-24","day":24,"month":6,"monthNameGenitive":"ЧЕРВНЯ","monthName":"Червень","weekday":"Середа","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-06-25","day":25,"month":6,"monthNameGenitive":"ЧЕРВНЯ","monthName":"Червень","weekday":"Четвер","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-06-26","day":26,"month":6,"monthNameGenitive":"ЧЕРВНЯ","monthName":"Червень","weekday":"П'ятниця","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-06-27","day":27,"month":6,"monthNameGenitive":"ЧЕРВНЯ","monthName":"Червень","weekday":"Субота","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-06-28","day":28,"month":6,"monthNameGenitive":"ЧЕРВНЯ","monthName":"Червень","weekday":"Неділя","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-06-29","day":29,"month":6,"monthNameGenitive":"ЧЕРВНЯ","monthName":"Червень","weekday":"Понеділок","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-06-30","day":30,"month":6,"monthNameGenitive":"ЧЕРВНЯ","monthName":"Червень","weekday":"Вівторок","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"waning","isKeyPhase":false,"note":"Чудовий день для перших літніх закруток."},{"date":"2026-07-01","day":1,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Середа","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-07-02","day":2,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Четвер","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-07-03","day":3,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"П'ятниця","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-07-04","day":4,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Субота","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-07-05","day":5,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Неділя","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-07-06","day":6,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Понеділок","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-07-07","day":7,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Вівторок","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"last_q","isKeyPhase":true,"note":null},{"date":"2026-07-08","day":8,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Середа","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"waning","isKeyPhase":false,"note":"Найкращі дні для консервації, збору літнього врожаю та стрижки тримаються до 10 липня."},{"date":"2026-07-09","day":9,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Четвер","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-07-10","day":10,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"П'ятниця","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-07-11","day":11,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Субота","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-07-12","day":12,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Неділя","sign":"gemini","signName":"Близнюки","signSymbol":"♊","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-07-13","day":13,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Понеділок","sign":"gemini","signName":"Близнюки","signSymbol":"♊","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-07-14","day":14,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Вівторок","sign":"cancer","signName":"Рак","signSymbol":"♋","element":"water","phase":"new","isKeyPhase":true,"note":"Сьогодні Молодик — день відпочинку. Нічого не садимо."},{"date":"2026-07-15","day":15,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Середа","sign":"cancer","signName":"Рак","signSymbol":"♋","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-07-16","day":16,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Четвер","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-07-17","day":17,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"П'ятниця","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-07-18","day":18,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Субота","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-07-19","day":19,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Неділя","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-07-20","day":20,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Понеділок","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-07-21","day":21,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Вівторок","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"first_q","isKeyPhase":true,"note":null},{"date":"2026-07-22","day":22,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Середа","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-07-23","day":23,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Четвер","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-07-24","day":24,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"П'ятниця","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-07-25","day":25,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Субота","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-07-26","day":26,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Неділя","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-07-27","day":27,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Понеділок","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"growing","isKeyPhase":false,"note":"Активно робимо закрутки на зиму — простоять довго."},{"date":"2026-07-28","day":28,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Вівторок","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-07-29","day":29,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Середа","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"full","isKeyPhase":true,"note":"Безплідні дні Водолія — миття вікон і кришталю, відпочинок (29-30 липня)."},{"date":"2026-07-30","day":30,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"Четвер","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-07-31","day":31,"month":7,"monthNameGenitive":"ЛИПНЯ","monthName":"Липень","weekday":"П'ятниця","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-08-01","day":1,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Субота","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-08-02","day":2,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Неділя","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-08-03","day":3,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Понеділок","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-08-04","day":4,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Вівторок","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"waning","isKeyPhase":false,"note":"Збір основного врожаю, копання ранньої картоплі — гарні дні до 6 серпня."},{"date":"2026-08-05","day":5,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Середа","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-08-06","day":6,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Четвер","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"last_q","isKeyPhase":true,"note":null},{"date":"2026-08-07","day":7,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"П'ятниця","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-08-08","day":8,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Субота","sign":"gemini","signName":"Близнюки","signSymbol":"♊","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-08-09","day":9,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Неділя","sign":"gemini","signName":"Близнюки","signSymbol":"♊","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-08-10","day":10,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Понеділок","sign":"cancer","signName":"Рак","signSymbol":"♋","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-08-11","day":11,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Вівторок","sign":"cancer","signName":"Рак","signSymbol":"♋","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-08-12","day":12,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Середа","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"new","isKeyPhase":true,"note":null},{"date":"2026-08-13","day":13,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Четвер","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-08-14","day":14,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"П'ятниця","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-08-15","day":15,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Субота","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-08-16","day":16,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Неділя","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-08-17","day":17,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Понеділок","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-08-18","day":18,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Вівторок","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-08-19","day":19,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Середа","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-08-20","day":20,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Четвер","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"first_q","isKeyPhase":true,"note":null},{"date":"2026-08-21","day":21,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"П'ятниця","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-08-22","day":22,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Субота","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-08-23","day":23,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Неділя","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-08-24","day":24,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Понеділок","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-08-25","day":25,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Вівторок","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-08-26","day":26,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Середа","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-08-27","day":27,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Четвер","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-08-28","day":28,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"П'ятниця","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"full","isKeyPhase":true,"note":null},{"date":"2026-08-29","day":29,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Субота","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-08-30","day":30,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Неділя","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-08-31","day":31,"month":8,"monthNameGenitive":"СЕРПНЯ","monthName":"Серпень","weekday":"Понеділок","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-09-01","day":1,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Вівторок","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-09-02","day":2,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Середа","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-09-03","day":3,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Четвер","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-09-04","day":4,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"П'ятниця","sign":"gemini","signName":"Близнюки","signSymbol":"♊","element":"air","phase":"last_q","isKeyPhase":true,"note":null},{"date":"2026-09-05","day":5,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Субота","sign":"gemini","signName":"Близнюки","signSymbol":"♊","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-09-06","day":6,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Неділя","sign":"cancer","signName":"Рак","signSymbol":"♋","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-09-07","day":7,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Понеділок","sign":"cancer","signName":"Рак","signSymbol":"♋","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-09-08","day":8,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Вівторок","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-09-09","day":9,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Середа","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-09-10","day":10,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Четвер","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-09-11","day":11,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"П'ятниця","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"new","isKeyPhase":true,"note":null},{"date":"2026-09-12","day":12,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Субота","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-09-13","day":13,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Неділя","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-09-14","day":14,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Понеділок","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-09-15","day":15,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Вівторок","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-09-16","day":16,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Середа","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-09-17","day":17,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Четвер","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-09-18","day":18,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"П'ятниця","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"first_q","isKeyPhase":true,"note":null},{"date":"2026-09-19","day":19,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Субота","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-09-20","day":20,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Неділя","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-09-21","day":21,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Понеділок","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-09-22","day":22,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Вівторок","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-09-23","day":23,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Середа","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-09-24","day":24,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Четвер","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-09-25","day":25,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"П'ятниця","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-09-26","day":26,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Субота","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"full","isKeyPhase":true,"note":null},{"date":"2026-09-27","day":27,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Неділя","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-09-28","day":28,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Понеділок","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-09-29","day":29,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Вівторок","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-09-30","day":30,"month":9,"monthNameGenitive":"ВЕРЕСНЯ","monthName":"Вересень","weekday":"Середа","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-10-01","day":1,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Четвер","sign":"gemini","signName":"Близнюки","signSymbol":"♊","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-10-02","day":2,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"П'ятниця","sign":"gemini","signName":"Близнюки","signSymbol":"♊","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-10-03","day":3,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Субота","sign":"cancer","signName":"Рак","signSymbol":"♋","element":"water","phase":"last_q","isKeyPhase":true,"note":null},{"date":"2026-10-04","day":4,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Неділя","sign":"cancer","signName":"Рак","signSymbol":"♋","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-10-05","day":5,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Понеділок","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-10-06","day":6,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Вівторок","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-10-07","day":7,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Середа","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-10-08","day":8,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Четвер","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-10-09","day":9,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"П'ятниця","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-10-10","day":10,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Субота","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"new","isKeyPhase":true,"note":null},{"date":"2026-10-11","day":11,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Неділя","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-10-12","day":12,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Понеділок","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-10-13","day":13,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Вівторок","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-10-14","day":14,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Середа","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-10-15","day":15,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Четвер","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-10-16","day":16,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"П'ятниця","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-10-17","day":17,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Субота","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-10-18","day":18,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Неділя","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"first_q","isKeyPhase":true,"note":null},{"date":"2026-10-19","day":19,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Понеділок","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-10-20","day":20,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Вівторок","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-10-21","day":21,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Середа","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-10-22","day":22,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Четвер","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-10-23","day":23,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"П'ятниця","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-10-24","day":24,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Субота","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-10-25","day":25,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Неділя","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-10-26","day":26,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Понеділок","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"full","isKeyPhase":true,"note":null},{"date":"2026-10-27","day":27,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Вівторок","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-10-28","day":28,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Середа","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-10-29","day":29,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Четвер","sign":"gemini","signName":"Близнюки","signSymbol":"♊","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-10-30","day":30,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"П'ятниця","sign":"gemini","signName":"Близнюки","signSymbol":"♊","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-10-31","day":31,"month":10,"monthNameGenitive":"ЖОВТНЯ","monthName":"Жовтень","weekday":"Субота","sign":"cancer","signName":"Рак","signSymbol":"♋","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-11-01","day":1,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Неділя","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"last_q","isKeyPhase":true,"note":null},{"date":"2026-11-02","day":2,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Понеділок","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-11-03","day":3,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Вівторок","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-11-04","day":4,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Середа","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-11-05","day":5,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Четвер","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-11-06","day":6,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"П'ятниця","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-11-07","day":7,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Субота","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-11-08","day":8,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Неділя","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-11-09","day":9,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Понеділок","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"new","isKeyPhase":true,"note":null},{"date":"2026-11-10","day":10,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Вівторок","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-11-11","day":11,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Середа","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-11-12","day":12,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Четвер","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-11-13","day":13,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"П'ятниця","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-11-14","day":14,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Субота","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-11-15","day":15,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Неділя","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-11-16","day":16,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Понеділок","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-11-17","day":17,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Вівторок","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"first_q","isKeyPhase":true,"note":null},{"date":"2026-11-18","day":18,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Середа","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-11-19","day":19,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Четвер","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-11-20","day":20,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"П'ятниця","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-11-21","day":21,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Субота","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-11-22","day":22,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Неділя","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-11-23","day":23,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Понеділок","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-11-24","day":24,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Вівторок","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"full","isKeyPhase":true,"note":null},{"date":"2026-11-25","day":25,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Середа","sign":"gemini","signName":"Близнюки","signSymbol":"♊","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-11-26","day":26,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Четвер","sign":"gemini","signName":"Близнюки","signSymbol":"♊","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-11-27","day":27,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"П'ятниця","sign":"cancer","signName":"Рак","signSymbol":"♋","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-11-28","day":28,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Субота","sign":"cancer","signName":"Рак","signSymbol":"♋","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-11-29","day":29,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Неділя","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-11-30","day":30,"month":11,"monthNameGenitive":"ЛИСТОПАДА","monthName":"Листопад","weekday":"Понеділок","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-12-01","day":1,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Вівторок","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"last_q","isKeyPhase":true,"note":null},{"date":"2026-12-02","day":2,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Середа","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-12-03","day":3,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Четвер","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-12-04","day":4,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"П'ятниця","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-12-05","day":5,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Субота","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-12-06","day":6,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Неділя","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-12-07","day":7,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Понеділок","sign":"scorpio","signName":"Скорпіон","signSymbol":"♏","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-12-08","day":8,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Вівторок","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-12-09","day":9,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Середа","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"new","isKeyPhase":true,"note":null},{"date":"2026-12-10","day":10,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Четвер","sign":"sagittarius","signName":"Стрілець","signSymbol":"♐","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-12-11","day":11,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"П'ятниця","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-12-12","day":12,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Субота","sign":"capricorn","signName":"Козеріг","signSymbol":"♑","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-12-13","day":13,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Неділя","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-12-14","day":14,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Понеділок","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-12-15","day":15,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Вівторок","sign":"aquarius","signName":"Водолій","signSymbol":"♒","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-12-16","day":16,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Середа","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-12-17","day":17,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Четвер","sign":"pisces","signName":"Риби","signSymbol":"♓","element":"water","phase":"first_q","isKeyPhase":true,"note":null},{"date":"2026-12-18","day":18,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"П'ятниця","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-12-19","day":19,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Субота","sign":"aries","signName":"Овен","signSymbol":"♈","element":"fire","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-12-20","day":20,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Неділя","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-12-21","day":21,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Понеділок","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-12-22","day":22,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Вівторок","sign":"taurus","signName":"Телець","signSymbol":"♉","element":"earth","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-12-23","day":23,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Середа","sign":"gemini","signName":"Близнюки","signSymbol":"♊","element":"air","phase":"growing","isKeyPhase":false,"note":null},{"date":"2026-12-24","day":24,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Четвер","sign":"gemini","signName":"Близнюки","signSymbol":"♊","element":"air","phase":"full","isKeyPhase":true,"note":null},{"date":"2026-12-25","day":25,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"П'ятниця","sign":"cancer","signName":"Рак","signSymbol":"♋","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-12-26","day":26,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Субота","sign":"cancer","signName":"Рак","signSymbol":"♋","element":"water","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-12-27","day":27,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Неділя","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-12-28","day":28,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Понеділок","sign":"leo","signName":"Лев","signSymbol":"♌","element":"fire","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-12-29","day":29,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Вівторок","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"waning","isKeyPhase":false,"note":null},{"date":"2026-12-30","day":30,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Середа","sign":"virgo","signName":"Діва","signSymbol":"♍","element":"earth","phase":"last_q","isKeyPhase":true,"note":null},{"date":"2026-12-31","day":31,"month":12,"monthNameGenitive":"ГРУДНЯ","monthName":"Грудень","weekday":"Четвер","sign":"libra","signName":"Терези","signSymbol":"♎","element":"air","phase":"waning","isKeyPhase":false,"note":null}]
+
+</script>
+
+<script>
+// ============ ДАНІ ============
+const DAYS = JSON.parse(document.getElementById('days-data').textContent);
+const DAYS_BY_DATE = {};
+DAYS.forEach((d, i) => { d._idx = i; DAYS_BY_DATE[d.date] = d; });
+
+// ============ КОНСТАНТИ ============
+const ELEMENT_COLOR = {
+  water: { main: '#4C7A8C', soft: '#E1ECEE' },
+  earth: { main: '#92703E', soft: '#F0E6D2' },
+  fire:  { main: '#C2603D', soft: '#F3E0D3' },
+  air:   { main: '#6D7E8C', soft: '#E7EBEC' },
+};
+
+const ELEMENT_NAME = { water: 'Вода', earth: 'Земля', fire: 'Вогонь', air: 'Повітря' };
+
+const ELEMENT_INFO = {
+  water: {
+    do: [
+      'Рясно полити город — навіть трохи, але треба',
+      'Велике прання — бруд відходить легко',
+      'Посадити листову зелень: салат, капусту, кріп',
+      'Підживити рослини по листу',
+    ],
+    dont: [
+      'Збирати врожай на зберігання — картопля чи яблука можуть зігнити',
+      'Консервувати й робити закрутки — не простоять',
+    ],
+    mood: 'День чутливий і м\'який. Гарний час для розмов по душі та дрібних справ із водою.',
+  },
+  earth: {
+    do: [
+      'Садити й пересаджувати — коренева система буде міцною',
+      'Вносити добрива та підживлення під корінь',
+      'Генеральне прибирання — пил довго не сідатиме',
+      'Стригтися — волосся буде густим і міцним',
+      'Квасити капусту й робити закрутки — простоять довго',
+    ],
+    dont: [
+      'Починати щось легковажне — день вимагає ґрунтовності',
+      'Приймати різкі рішення у грошових питаннях',
+    ],
+    mood: 'Стабільний, надійний день. Усе, що зроблено сьогодні, тримається довго.',
+  },
+  fire: {
+    do: [
+      'Боротися зі шкідниками й бур\'янами',
+      'Обрізати сухі гілки та хворі пагони',
+      'Провітрювати шафи й сушити речі — все сохне миттєво',
+      'Сушити фрукти, ягоди, трави',
+    ],
+    dont: [
+      'Брати в руки гострі предмети та праску без зайвої уваги',
+      'Садити щось нове — або згорить, або не приймається',
+    ],
+    mood: 'Енергійний, швидкий день. Добре встигнути зробити те, що вимагає сили.',
+  },
+  air: {
+    do: [
+      'Мити вікна, дзеркала, кришталь — без розводів',
+      'Садити квіти й рослини, що в\'ються (горох, квасоля, ліани)',
+      'Збирати насіння й сушити трави',
+      'Провітрювати приміщення',
+    ],
+    dont: [
+      'Поливати квіти — коріння може загнити, бо воно "дихає", а не п\'є',
+      'Садити картоплю — врожаю не буде',
+    ],
+    mood: 'Легкий, повітряний день. Гарний для дрібних справ і краси дому.',
+  },
+};
+
+const PHASE_INFO = {
+  new:      { name: 'Молодик',          sub: 'Час відпочинку' },
+  growing:  { name: 'Місяць росте',     sub: 'Час починати нове' },
+  first_q:  { name: 'Перша четверть',   sub: 'Напружений день' },
+  full:     { name: 'Повня',            sub: 'Пік місячної сили' },
+  waning:   { name: 'Місяць спадає',    sub: 'Час збирати врожай' },
+  last_q:   { name: 'Третя четверть',  sub: 'Краще завершувати справи' },
+};
+
+const PHASE_TIP = {
+  new:     'День відпочинку для землі й для тебе. Нічого не садимо, нічого великого не починаємо — це тиша перед новим стартом.',
+  growing: 'Сила йде вгору. Гарний час сіяти, садити, починати нові справи.',
+  first_q: 'Напружений день взаємодії Сонця й Місяця. Краще без різких рішень — спокійно роби побутове.',
+  full:    'Пік місячної енергії. Емоції загострені. Не найкращий день для нового — краще для завершення справ.',
+  waning:  'Сила йде вниз, у корінь. Гарний час для збирання врожаю, прибирання й відпускання непотрібного.',
+  last_q:  'Ще один напружений день. Краще завершувати справи, ніж починати нові.',
+};
+
+// ============ SVG ІКОНКИ СТИХІЙ ============
+function svgElementIcon(element, color, size) {
+  size = size || 22;
+  const c = color || '#3D3929';
+  const icons = {
+    water: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><path d="M12 2.8c3.4 4.3 6.8 8.5 6.8 12A6.8 6.8 0 0 1 5.2 14.8c0-3.5 3.4-7.7 6.8-12Z" fill="${c}" opacity="0.22"/><path d="M12 2.8c3.4 4.3 6.8 8.5 6.8 12A6.8 6.8 0 0 1 5.2 14.8c0-3.5 3.4-7.7 6.8-12Z" stroke="${c}" stroke-width="1.7" stroke-linejoin="round"/></svg>`,
+    earth: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><path d="M2.5 18 8 9l3 4 2.5-3.3L20.5 18Z" fill="${c}" opacity="0.22"/><path d="M2.5 18 8 9l3 4 2.5-3.3L20.5 18Z" stroke="${c}" stroke-width="1.6" stroke-linejoin="round"/><path d="M2.5 18h18" stroke="${c}" stroke-width="1.6" stroke-linecap="round"/></svg>`,
+    fire: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><path d="M12 2.8c1.3 2.3.6 3.5-.5 4.9-1.3 1.6-2.5 3.2-2.5 5.3a5.5 5.5 0 0 0 11 0c0-2.5-1.3-4.2-2.6-5.6.2 1.7-.5 2.7-1.4 2.7-1.1 0-1.4-1.1-1.2-2.3.2-1.7-.4-3.4-2.8-5Z" fill="${c}" opacity="0.22"/><path d="M12 2.8c1.3 2.3.6 3.5-.5 4.9-1.3 1.6-2.5 3.2-2.5 5.3a5.5 5.5 0 0 0 11 0c0-2.5-1.3-4.2-2.6-5.6.2 1.7-.5 2.7-1.4 2.7-1.1 0-1.4-1.1-1.2-2.3.2-1.7-.4-3.4-2.8-5Z" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+    air: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><path d="M3 8.5h12.5a2.9 2.9 0 1 0-2.75-4" stroke="${c}" stroke-width="1.7" stroke-linecap="round"/><path d="M3 14.5h15a3.05 3.05 0 1 1-2.9 4.2" stroke="${c}" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+  };
+  return icons[element] || '';
+}
+
+// ============ SVG ІКОНКИ ЗНАКІВ ЗОДІАКУ (мінімалістичні піктограми) ============
+function svgZodiacIcon(sign, color, size) {
+  size = size || 26;
+  const c = color || '#3D3929';
+  const s = 1.7;
+  const icons = {
+    aries: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><path d="M5 5c0 4 1.5 6 3 6m11-6c0 4-1.5 6-3 6M8 11c0-1 .8-2 4-2s4 1 4 2c0 5-1 9-4 9s-4-4-4-9Z" stroke="${c}" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    taurus: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><circle cx="12" cy="15" r="5" stroke="${c}" stroke-width="${s}"/><path d="M5 6a4 4 0 0 0 7 3 4 4 0 0 0 7-3" stroke="${c}" stroke-width="${s}" stroke-linecap="round"/></svg>`,
+    gemini: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><path d="M7 4v16M17 4v16M5 6.5c5 1.5 9 1.5 14 0M5 17.5c5-1.5 9-1.5 14 0" stroke="${c}" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    cancer: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><circle cx="7.5" cy="8" r="2.4" stroke="${c}" stroke-width="${s}"/><circle cx="16.5" cy="16" r="2.4" stroke="${c}" stroke-width="${s}"/><path d="M5 8c0 6 6 4 6 4M19 16c0-6-6-4-6-4" stroke="${c}" stroke-width="${s}" stroke-linecap="round"/></svg>`,
+    leo: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><circle cx="9" cy="14.5" r="4.3" stroke="${c}" stroke-width="${s}"/><path d="M12.6 13c1-1 1.4-2.2 1.4-3.5a3.3 3.3 0 1 0-3.3 3.3" stroke="${c}" stroke-width="${s}" stroke-linecap="round"/></svg>`,
+    virgo: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><path d="M5 4v10.5a3 3 0 0 0 6 0V5M11 4v11M14 4v10.5a3 3 0 0 0 6 0c0-1.7-1-2.5-2-2.5" stroke="${c}" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 19.5v-2" stroke="${c}" stroke-width="${s}" stroke-linecap="round"/></svg>`,
+    libra: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><path d="M4 19h16M5 15c1.5-6 5-9 7-9s5.5 3 7 9" stroke="${c}" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    scorpio: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><path d="M5 4v10.5a3 3 0 0 0 6 0V5M11 4v11M14 4v10.5a3 3 0 0 0 6 0c0-1.5-1.5-2-3-1l3-3" stroke="${c}" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    sagittarius: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><path d="M5 19 19 5M10 5h9v9M7 13l4 4" stroke="${c}" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    capricorn: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><path d="M5 4c0 8 1 11 3.5 11S11 13 11 9V4m0 6c0 7 2 9 4.5 9 2 0 3.5-1.3 3.5-3.2 0-1.7-1.2-2.8-2.7-2.8-1.3 0-2.3 1-2.3 2.2" stroke="${c}" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    aquarius: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><path d="M3 9c1.6-1.4 3-1.4 4.5 0s2.9 1.4 4.5 0 3-1.4 4.5 0 2.9 1.4 4.5 0M3 15c1.6-1.4 3-1.4 4.5 0s2.9 1.4 4.5 0 3-1.4 4.5 0 2.9 1.4 4.5 0" stroke="${c}" stroke-width="${s}" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    pisces: `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none"><path d="M5 4c3 3.5 3 12.5 0 16M19 4c-3 3.5-3 12.5 0 16M4 12h16" stroke="${c}" stroke-width="${s}" stroke-linecap="round"/></svg>`,
+  };
+  return icons[sign] || '';
+}
+
+function checkIcon(color) {
+  return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none"><circle cx="12" cy="12" r="10" fill="${color}" opacity="0.16"/><path d="M7.5 12.5l3 3 6-6.5" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+function crossIcon(color) {
+  return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none"><circle cx="12" cy="12" r="10" fill="${color}" opacity="0.10"/><path d="M9 9l6 6M15 9l-6 6" stroke="${color}" stroke-width="2" stroke-linecap="round"/></svg>`;
+}
+function noteIcon(color) {
+  return `<svg viewBox="0 0 24 24" width="19" height="19" fill="none"><path d="M12 8v5M12 16h.01" stroke="${color}" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="12" r="9.2" stroke="${color}" stroke-width="1.6"/></svg>`;
+}
+
+// ============ SVG МІСЯЦЬ (намальована фаза) ============
+// illum: 0..1 (частка освітленої поверхні), waxing: true (росте, світло з правого боку)
+// або false (спадає, світло з лівого боку)
+function moonSVG(phaseKey) {
+  let illum, waxing;
+  switch (phaseKey) {
+    case 'new':     illum = 0.03; waxing = true;  break;
+    case 'growing': illum = 0.28; waxing = true;  break;
+    case 'first_q': illum = 0.5;  waxing = true;  break;
+    case 'full':    illum = 0.98; waxing = true;  break;
+    case 'waning':  illum = 0.72; waxing = false; break;
+    case 'last_q':  illum = 0.5;  waxing = false; break;
+    default:        illum = 0.5;  waxing = true;
+  }
+  const r = 25, cx = 26, cy = 26;
+  const darkColor = '#D8CCB4';
+  const lightColor = '#3D3929';
+  const k = illum * 2 - 1; // -1..1
+  const rx = Math.abs(k) * r;
+  const half = waxing ? 'right' : 'left';
+  let lightPath;
+
+  if (half === 'right') {
+    if (k < 0) {
+      lightPath = `M${cx},${cy-r} A${rx},${r} 0 0 1 ${cx},${cy+r} A${r},${r} 0 0 1 ${cx},${cy-r} Z`;
+    } else if (k > 0) {
+      lightPath = `M${cx},${cy-r} A${rx},${r} 0 0 0 ${cx},${cy+r} A${r},${r} 0 0 1 ${cx},${cy-r} Z`;
+    } else {
+      lightPath = `M${cx},${cy-r} A${r},${r} 0 0 1 ${cx},${cy+r} Z`;
+    }
+  } else {
+    if (k < 0) {
+      lightPath = `M${cx},${cy-r} A${rx},${r} 0 0 0 ${cx},${cy+r} A${r},${r} 0 0 0 ${cx},${cy-r} Z`;
+    } else if (k > 0) {
+      lightPath = `M${cx},${cy-r} A${rx},${r} 0 0 1 ${cx},${cy+r} A${r},${r} 0 0 0 ${cx},${cy-r} Z`;
+    } else {
+      lightPath = `M${cx},${cy-r} A${r},${r} 0 0 0 ${cx},${cy+r} Z`;
+    }
+  }
+
+  return `<svg viewBox="0 0 52 52" width="100%" height="100%">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="${darkColor}"/>
+    <path d="${lightPath}" fill="${lightColor}"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${darkColor}" stroke-width="1"/>
+  </svg>`;
+}
+
+// маленька версія для довідки (фіксовані іконки фаз, простіші)
+function moonPhaseIconSmall(phaseKey) {
+  return moonSVG(phaseKey);
+}
+
+// ============ СТАН ============
+const todayISO = (function() {
+  const t = new Date();
+  // прив'язуємось до системної дати телефону
+  const y = t.getFullYear(), m = String(t.getMonth()+1).padStart(2,'0'), d = String(t.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+})();
+
+let currentIndex = DAYS_BY_DATE[todayISO] ? DAYS_BY_DATE[todayISO]._idx : 0;
+// якщо сьогоднішня дата поза діапазоном (наприклад, тестуємо у 2027), показуємо перший день
+if (currentIndex === undefined || currentIndex === null) currentIndex = 0;
+
+// ============ РЕНДЕР ============
+function render(idx) {
+  const day = DAYS[idx];
+  if (!day) return;
+
+  document.getElementById('weekdayLabel').textContent = day.weekday;
+  document.getElementById('dayNumber').textContent = day.day;
+  document.getElementById('monthLabel').textContent = day.monthNameGenitive;
+
+  // місяць
+  document.getElementById('moonSvgHolder').innerHTML = moonSVG(day.phase);
+  const pInfo = PHASE_INFO[day.phase];
+  document.getElementById('moonPhaseName').textContent = pInfo.name;
+  document.getElementById('moonPhaseSub').textContent = pInfo.sub;
+
+  // зодіак
+  const elColor = ELEMENT_COLOR[day.element];
+  const zBox = document.getElementById('zodiacSymbolBox');
+  zBox.style.background = elColor.soft;
+  zBox.innerHTML = svgZodiacIcon(day.sign, elColor.main, 28);
+  document.getElementById('zodiacSignName').textContent = day.signName;
+  document.getElementById('zodiacElementName').innerHTML =
+    svgElementIcon(day.element, elColor.main, 14) + ` Стихія ${ELEMENT_NAME[day.element]}`;
+
+  // hero card тонування
+  document.getElementById('heroCard').style.background =
+    `linear-gradient(180deg, ${elColor.soft}55, #FFFFFF 55%)`;
+
+  // спеціальна нотатка
+  const noteHolder = document.getElementById('specialNoteHolder');
+  if (day.note) {
+    noteHolder.innerHTML = `<div class="special-note">${noteIcon('#8A3F23')}<span>${day.note}</span></div>`;
+  } else {
+    noteHolder.innerHTML = '';
+  }
+
+  // секції до/не
+  document.getElementById('doHeadIcon').innerHTML = checkIcon(elColor.main);
+  document.getElementById('dontHeadIcon').innerHTML = crossIcon('#8A8473');
+  document.querySelector('.do-card .reco-head').style.background = elColor.soft;
+  document.querySelector('.do-card .reco-head').style.color = elColor.main;
+
+  const info = ELEMENT_INFO[day.element];
+  document.getElementById('doList').innerHTML = info.do.map(item =>
+    `<div class="reco-item"><span class="mark">${checkIcon(elColor.main)}</span><span>${item}</span></div>`
+  ).join('');
+  document.getElementById('dontList').innerHTML = info.dont.map(item =>
+    `<div class="reco-item"><span class="mark">${crossIcon('#8A8473')}</span><span>${item}</span></div>`
+  ).join('');
+
+  // настрій дня (стихія + фаза)
+  document.getElementById('moodCard').innerHTML =
+    `<b>${pInfo.name}.</b> ${PHASE_TIP[day.phase]}`;
+
+  // кнопка "сьогодні" — підсвічуємо, якщо ми не на сьогоднішньому дні
+  const todayBtn = document.getElementById('todayBtn');
+  if (day.date === todayISO) {
+    todayBtn.textContent = 'Сьогодні';
+    todayBtn.style.color = 'var(--ink)';
+  } else {
+    todayBtn.textContent = '↺ До сьогодні';
+    todayBtn.style.color = 'var(--clay)';
+  }
+
+  // межі діапазону
+  document.getElementById('prevBtn').style.visibility = idx <= 0 ? 'hidden' : 'visible';
+  document.getElementById('nextBtn').style.visibility = idx >= DAYS.length - 1 ? 'hidden' : 'visible';
+
+  // скрол наверх при зміні дня
+  document.getElementById('scrollArea').scrollTop = 0;
+}
+
+function goTo(idx) {
+  if (idx < 0 || idx >= DAYS.length) return;
+  currentIndex = idx;
+  render(currentIndex);
+}
+
+// ============ НАВІГАЦІЯ КНОПКАМИ ============
+document.getElementById('prevBtn').addEventListener('click', () => goTo(currentIndex - 1));
+document.getElementById('nextBtn').addEventListener('click', () => goTo(currentIndex + 1));
+document.getElementById('todayBtn').addEventListener('click', () => {
+  const idx = DAYS_BY_DATE[todayISO] ? DAYS_BY_DATE[todayISO]._idx : 0;
+  goTo(idx);
+});
+
+// ============ ЖЕСТ ГОРТАННЯ (без слова "свайп" в інтерфейсі) ============
+(function setupSwipe() {
+  const area = document.getElementById('scrollArea');
+  let startX = 0, startY = 0, tracking = false;
+
+  area.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) return;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    tracking = true;
+  }, { passive: true });
+
+  area.addEventListener('touchend', (e) => {
+    if (!tracking) return;
+    tracking = false;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx < 0) goTo(currentIndex + 1);
+      else goTo(currentIndex - 1);
+    }
+  }, { passive: true });
+})();
+
+// ============ ДОВІДКА ============
+const helpOverlay = document.getElementById('helpOverlay');
+document.getElementById('helpBtn').addEventListener('click', () => {
+  helpOverlay.classList.add('open');
+});
+document.getElementById('closeHelp').addEventListener('click', () => {
+  helpOverlay.classList.remove('open');
+});
+helpOverlay.addEventListener('click', (e) => {
+  if (e.target === helpOverlay) helpOverlay.classList.remove('open');
+});
+
+// іконки заголовків стихій у довідці
+document.getElementById('hWaterHead').innerHTML = svgElementIcon('water', '#4C7A8C', 20) + ' Вода';
+document.getElementById('hEarthHead').innerHTML = svgElementIcon('earth', '#92703E', 20) + ' Земля';
+document.getElementById('hFireHead').innerHTML  = svgElementIcon('fire', '#C2603D', 20) + ' Вогонь';
+document.getElementById('hAirHead').innerHTML   = svgElementIcon('air', '#4F5F6B', 20) + ' Повітря';
+
+// список фаз у довідці
+const phaseOrder = ['new','growing','first_q','full','waning','last_q'];
+document.getElementById('phasesListHolder').innerHTML = phaseOrder.map(p => {
+  const info = PHASE_INFO[p];
+  return `<div class="phase-row">
+    <div class="ph-icon">${moonPhaseIconSmall(p)}</div>
+    <div class="ph-text"><b>${info.name}</b><span>${PHASE_TIP[p]}</span></div>
+  </div>`;
+}).join('');
+
+// ============ ПЕРШИЙ РЕНДЕР ============
+render(currentIndex);
+
+</script>
+
+</body>
+</html>
